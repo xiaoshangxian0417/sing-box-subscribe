@@ -43,6 +43,8 @@ def process_subscribes(subscribes):
     for subscribe in subscribes:
         if 'enabled' in subscribe and not subscribe['enabled']:
             continue
+        if 'sing-box-subscribe.vercel.app' in subscribe['url']:
+            continue
         _nodes = get_nodes(subscribe['url'])
         if _nodes and len(_nodes) > 0:
             add_prefix(_nodes, subscribe)
@@ -106,12 +108,16 @@ def add_prefix(nodes, subscribe):
     if subscribe.get('prefix'):
         for node in nodes:
             node['tag'] = subscribe['prefix'] + node['tag']
+            if node.get('detour'):
+                node['detour'] = subscribe['prefix'] + node['detour']
 
 
 def add_emoji(nodes, subscribe):
     if subscribe.get('emoji'):
         for node in nodes:
             node['tag'] = tool.rename(node['tag'])
+            if node.get('detour'):
+                node['detour'] = tool.rename(node['detour'])
 
 
 def get_nodes(url):
@@ -408,7 +414,7 @@ def combin_to_config(config, data):
                             out["outbounds"][index_of_all] = (group.rsplit("-", 1)[0]).rsplit("-", 1)[-1]
                             i += 1
                         else:
-                            out["outbounds"].insert(i - 1, (group.rsplit("-", 1)[0]).rsplit("-", 1)[-1])
+                            out["outbounds"].insert(i, (group.rsplit("-", 1)[0]).rsplit("-", 1)[-1])
             new_outbound = {'tag': (group.rsplit("-", 1)[0]).rsplit("-", 1)[-1], 'type': 'selector', 'outbounds': ['{' + group + '}']}
             config_outbounds.insert(-4, new_outbound)
         else:

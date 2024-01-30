@@ -58,7 +58,7 @@ def clash2v2ray(share_link):
         base_link = base64.b64encode("{cipher}:{password}".format(**ss_info).encode('utf-8')).decode('utf-8')
         if share_link.get('plugin'):
             ss_info["plugin"] = share_link['plugin']
-            if share_link.get('plugin') == 'obfs':
+            if share_link.get('plugin') == 'obfs' or share_link.get('plugin') == 'obfs-local':
                 ss_info["mode"] = share_link['plugin-opts']['mode']
                 ss_info["host"] = share_link['plugin-opts'].get('host', '')
                 url_link = '?plugin=obfs-local%3Bobfs%3D{mode}%3Bobfs-host%3D{host}'.format(**ss_info)
@@ -188,8 +188,8 @@ def clash2v2ray(share_link):
         else:
             vless_info["security"] = 'tls'
         if vless_info['type'] == 'ws':
-            vless_info["path"] = quote(share_link['ws-opts'].get('path', ''), 'utf-8')
-            vless_info["host"] = share_link['ws-opts'].get('headers', {}).get('Host', '')
+            vless_info["path"] = quote(share_link['ws-opts'].get('path', ''), 'utf-8') if share_link.get('ws-opts') else share_link.get('ws-path', '')
+            vless_info["host"] = share_link['ws-opts'].get('headers', {}).get('Host', '') if share_link.get('ws-opts') else share_link.get('ws-headers', {}).get('Host', '')
             link = "vless://{uuid}@{server}:{port}?encryption=none&security={security}&sni={sni}&fp={fp}&type={type}&host={host}&path={path}&flow={flow}&allowInsecure={allowInsecure}".format(**vless_info)
         if vless_info['type'] == 'grpc':
             if share_link.get('grpc-opts', {}).get('grpc-service-name', '') not in ['/', ''] :
